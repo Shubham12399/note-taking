@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>Note Taking app </title>
+
+	<!-- HTML -->
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+
+		* {
+			font-family: 'Montserrat', sans-serif;
+		}
+
+		.title {
+			text-align: center;
+			padding: 1rem;
+
+		}
+
+		.app {
+			width: 380px;
+			margin: 1rem auto;
+			padding: .5rem;
+			display: flex;
+			justify-content: center;
+			flex-direction: column;
+			gap: .5rem;
+		}
+
+		button {
+			padding: .5rem 1rem;
+		}
+
+		textarea {
+			outline: none;
+			padding: 1rem;
+			border-width: 1px;
+			border-radius: 5px;
+		}
+
+		textarea:focus {
+			border-width: 2px;
+		}
+
+		.result {
+			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+			flex-direction: column;
+			width: 400px;
+			margin: 0 auto;
+			max-height: 385px;
+			overflow: scroll;
+		}
+
+		.notes {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin: .4rem auto;
+			padding: .5rem;
+			background: #f7f7f7;
+			animation: fade .5s ease 1;
+			border-radius: 5px;
+			border: 1px solid black;
+			border-radius: 5px;
+		}
+
+		.result::-webkit-scrollbar {
+			display: none !important;
+
+		}
+
+		.notes .note {
+			width: 200px;
+			height: 50px;
+			padding: .5rem;
+			overflow: scroll;
+			font-size: .9rem;
+			background: none;
+		}
+
+		@keyframes fade {
+			0% {
+				opacity: 0%;
+			}
+
+			100% {
+				opacity: 100%;
+			}
+		}
+
+		small {
+			margin: .5rem;
+			font-size: .6rem;
+		}
+
+		#empty {
+			color: rgba(0, 0, 0, 0.4);
+			margin: 2rem;
+			font-size: 1.1rem;
+		}
+
+		.instruction {
+			display: none;
+			padding: 1rem;
+			margin: 1rem;
+		}
+
+		.instruction p,
+		li {
+			font-size: .9rem;
+		}
+	</style>
+
+	<!-- Custom Styles -->
+	<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+	<!-- Note Taking app  -->
+
+	<div class="container">
+		<h1 class="title">
+			NOTE TAKING APP
+		</h1>
+		<div class="app">
+			DISCRIPTION :
+			<textarea class="user-input" name="" id="" rows="8" cols="40" placeholder="ENTER YOUR NOTE HERE"></textarea>
+			<button class="user-btn">ADD NOTE </button>
+			<button id="deleteAll" onclick="deleteAll()"> DELETE ALL NOTES</button>
+
+		</div>
+		<div class="result">
+
+		</div>
+		<div class="instruction">
+			<h3>How to Add Your Notes and Edit your Notes ?</h3>
+			<p>To Add your Notes Follow these Simple Steps .</p>
+			<ol>
+				<li>Click on Description and Add your note details </li>
+				<li>Click on Add Note button and add your Note</li>
+			</ol>
+		</div>
+	</div>
+
+
+
+	<script>
+		let input = document.querySelector(".user-input");
+		let saveBtn = document.querySelector(".user-btn");
+		let result = document.querySelector(".result");
+		let newDate = new Date();
+		newDate = newDate.toLocaleDateString();
+		let notesArr = [];
+		let dltAll = document.querySelector('#deleteAll');
+		saveBtn.addEventListener("click", function() {
+			if (!input.value.trim() == "") {
+				noteHtml = `<div class = "notes">
+		<div class='note'> ${ input.value.trim()}</div>
+		<small> ${newDate} </small>
+<button class="deleteBtn" > DELETE </button>
+	    </div>`;
+				notesArr.push(noteHtml);
+				localStorage.setItem('note', JSON.stringify(notesArr));
+				notesArr = JSON.parse(localStorage.getItem('note'));
+				result.innerHTML = '';
+				input.value = '';
+				updateHtml();
+				dltBtnEach();
+			}
+
+		})
+		if (!localStorage.getItem('note') == '') {
+			notesArr = JSON.parse(localStorage.getItem('note'));
+		}
+
+		function dltItem() {
+			// body...
+			console.log('deleting...')
+		}
+
+		function updateHtml() {
+			result.innerHTML = '';
+			notesArr.forEach(function(elem) {
+				// body...
+				result.innerHTML += elem;
+				dsbdltBtn();
+				saveBtnValid();
+			})
+		}
+		updateHtml();
+
+		function deleteAll() {
+			if (!localStorage.getItem('note') == '') {
+				let confirmation = confirm('Do you want to delete All Notes * Never recovered');
+				// body...
+				if (confirmation) {
+					localStorage.clear();
+					notesArr = [];
+					result.innerHTML = '';
+					dsbdltBtn();
+					saveBtnValid();
+				}
+			}
+			else {
+				dsbdltBtn();
+			}
+		}
+
+		function dsbdltBtn() {
+			// body...
+			if (localStorage.getItem('note') == null || notesArr.length == 0) {
+				dltAll.disabled = true;
+				result.innerHTML = '<p id="empty"> Empty </p>'
+			}
+			else {
+				dltAll.disabled = false;
+			}
+		}
+		dsbdltBtn();
+		input.addEventListener('input', saveBtnValid);
+
+		function saveBtnValid() {
+			// body...
+			if (input.value.trim() == '') {
+				saveBtn.disabled = true;
+			}
+			else {
+				saveBtn.disabled = false;
+			}
+		}
+
+		saveBtnValid();
+		//console.log(dltBtnArray);
+		function dltBtnEach() {
+			// body...
+			let dltBtn = document.querySelectorAll('.deleteBtn');
+			let dltBtnArray = Array.from(dltBtn);
+			dltBtnArray.forEach(
+				(elem, index) => {
+					elem.addEventListener('click', () => {
+
+						let confirmation = confirm('Do you want to delete Selected Note *never recovered');
+						// body...
+						if (confirmation) {
+							notesArr.splice(index, 1);
+							localStorage.setItem('note', JSON.stringify(notesArr));
+							notesArr = JSON.parse(localStorage.getItem('note'));
+							updateHtml();
+							dsbdltBtn();
+							console.log('hello');
+							dltBtnEach();
+						}
+					});
+				}
+			);
+		}
+		dltBtnEach();
+	</script>
+</body>
+
+</html>
